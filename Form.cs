@@ -24,7 +24,7 @@ namespace TestWinApp
         {
             InitializeComponent();
             _context = new CoreEntityContext("CoreEntityConnection");
-            // Инициализация корневой группы и построение дерева
+
             InitRootGroup();
             группуToolStripMenuItem.Click += группуToolStripMenuItem_Click;
             свойствоToolStripMenuItem.Click += свойствоToolStripMenuItem_Click;
@@ -50,29 +50,28 @@ namespace TestWinApp
             var rootNode = CreateNode(rootGroup);
             treeView1.Nodes.Add(rootNode);
 
-            //  дочерние элементы, если они есть
+
             AddChildNodes(rootNode);
         }
 
-        // Метод для создания TreeNode из объекта TGroup
+
         private TreeNode CreateNode(TGroup group)
         {
             var node = new TreeNode
             {
                 Text = group.Name,
                 Name = $"{group.Id}|Group",
-                Tag = group // Сохраняем объект TGroup в Tag для дальнейшего использования
+                Tag = group 
             };
 
             return node;
         }
 
-        // Метод для добавления дочерних узлов
+
         private void AddChildNodes(TreeNode parentNode)
         {
             var groupId = GetGroupIdFromNode(parentNode);
 
-            //  дочерние группы и свойства для данной группы из базы данных
             var childGroups = _context.TRelationsProperty
                 .Where(r => r.IdParent == groupId)
                 .Select(r => r.IdChild)
@@ -82,7 +81,6 @@ namespace TestWinApp
                 .Where(p => p.GroupId == groupId)
                 .ToList();
 
-            //  дочерние группы как узлы
             foreach (var childGroupId in childGroups)
             {
                 var childGroup = _context.TGroupsProperty.FirstOrDefault(g => g.Id == childGroupId);
@@ -91,25 +89,25 @@ namespace TestWinApp
                 {
                     var childNode = CreateNode(childGroup);
                     parentNode.Nodes.Add(childNode);
-                    AddChildNodes(childNode); // Рекурсивно добав дочерние узлы
+                    AddChildNodes(childNode);
                 }
             }
 
-            // Добавь свойства как узлы
+
             foreach (var property in childProperties)
             {
                 var propertyNode = new TreeNode
                 {
                     Text = property.Name,
                     Name = $"{property.Id}|Property",
-                    Tag = property // Сохраняем объект TProperty в Tag для дальнейшего использования
+                    Tag = property
                 };
 
                 parentNode.Nodes.Add(propertyNode);
             }
         }
 
-        // Метод для получения Id группы из узла
+   
         private long GetGroupIdFromNode(TreeNode node)
         {
             var parts = node.Name.Split('|');
@@ -117,7 +115,7 @@ namespace TestWinApp
             {
                 return groupId;
             }
-            return -1; // Вернуть значение по умолчанию, если не удалось получить Id группы
+            return -1; 
         }
 
 
@@ -134,7 +132,7 @@ namespace TestWinApp
         // CRUD-операции для TGROUP
         private void CreateNewGroup(string name)
         {
-            //если таблица пусатя то первая запись будет с айди=1
+    
             var maxId = _context.TGroupsProperty.Select(x => x.Id).DefaultIfEmpty(0).Max() + 1;
             var newGroup = new TGroup()
             {
@@ -173,14 +171,14 @@ namespace TestWinApp
         private void DeleteGroup(long id)
         {
             if (_context == null) return;
-            // Из базы данных находится объект с заданным параметров id
+
             var groupForDelete = _context.TGroupsProperty.SingleOrDefault(x => x.Id == id);
             if (groupForDelete == null)
             {
                 MessageBox.Show($"Группа с id = {id} не найдена!");
                 return;
             }
-            // Происходит удаление объекта testEntityForDelete из базы данных
+          
             _context.TGroupsProperty.Remove(groupForDelete);
             try
             {
@@ -199,14 +197,14 @@ namespace TestWinApp
         private void UpdateGroupName(long id, string name)
         {
             if (_context == null) return;
-            // Находится из базы данных объект по параметру id, у которого необходимо изменить свойства Name.
+             тва Name.
             var groupForUpdate = _context.TGroupsProperty.FirstOrDefault(x => x.Id == id);
             if (groupForUpdate == null)
             {
                 MessageBox.Show($"Группа для обновления с id = {id} не найдена");
                 return;
             }
-            // Происходит изменение значение свойства Name назначение переменной name
+       
             groupForUpdate.Name = name;
             try
             {
@@ -288,18 +286,18 @@ namespace TestWinApp
             }
         }
         //update
-        //обновление ребенка для родителя
+
         private void UpdateRelation(long parentId, long childId)
         {
             if (_context == null) return;
-            // Находится из базы данных объект по параметру id, у которого необходимо изменить свойства Name.
+         
             var relationForUpdate = _context.TRelationsProperty.FirstOrDefault(x => x.IdParent == parentId);
             if (relationForUpdate == null)
             {
                 MessageBox.Show($"Отношение для обновления с parent_id = {parentId} не найдена");
                 return;
             }
-            // Происходит изменение значение свойства Name назначение переменной name
+
             relationForUpdate.IdChild = childId;
             try
             {
@@ -344,7 +342,6 @@ namespace TestWinApp
         {
             if (_context == null) return;
 
-            // Получение максимального Id из базы данных и увеличение на 1
             long maxId = _context.TProperties.Select(x => x.Id).DefaultIfEmpty(0).Max() + 1;
 
             var newProperty = new TProperty
@@ -388,7 +385,7 @@ namespace TestWinApp
                 return null;
             }
             else return listEntities;
-            // Обработка полученных данных listEntities
+
         }
         private TProperty ReadTProperties(long id)
         {
@@ -466,7 +463,7 @@ namespace TestWinApp
 
             if (propertyForDelete == null)
             {
-                //MessageBox.Show($"Свойство с Groupid = {groupId} не найдено!");
+          
                 return;
             }
 
@@ -498,10 +495,10 @@ namespace TestWinApp
 
         private void RefreshTreeView()
         {
-            // Очищаем дерево
+         
             treeView1.Nodes.Clear();
 
-            // Инициализируем дерево заново
+    
             InitRootGroup();
         }
         //save group
@@ -542,10 +539,10 @@ namespace TestWinApp
         //отмена
         private void button2_Click(object sender, EventArgs e)
         {
-            // Очищаем все поля формы
+     
             textBox1.Clear();
             textBox2.Clear();
-            // Скрываем форму редактирования группы
+        
             HideGroupForm();
         }
         //save property
@@ -590,12 +587,11 @@ namespace TestWinApp
         //отмена свойств
         private void button4_Click(object sender, EventArgs e)
         {
-            // Очищаем все поля формы
+     
             textBox3.Clear();
             textBox4.Clear();
             textBox5.Clear();
 
-            // Скрываем форму редактирования группы
             HidePropertyForm();
         }
         bool flagUpdate = false;
@@ -635,10 +631,10 @@ namespace TestWinApp
             if (selectedNode != null && selectedNode.Tag is TGroup)
             {
                 var parentInfo=selectedNode.Name.Split('|');
-                // Отображение формы редактирования свойства
+            
                 ShowPropertyForm();
 
-                // Установка значений полей формы свойства
+              
                 textBox3.Text = "";
                 textBox4.Text = "";
                 textBox5.Text = parentInfo[0];
@@ -659,35 +655,35 @@ namespace TestWinApp
 
             if (selectedNode != null)
             {
-                // Определить тип выделенного узла
+        
                 string[] nodeInfo = selectedNode.Name.Split('|');
                 string nodeType = nodeInfo[1];
 
-                // Если тип выделенного узла является группой (Group)
+        
                 if (nodeType.Equals("Group"))
                 {
-                    // Отобразить форму редактирования группы
+                 
                     HidePropertyForm();
                     ShowGroupForm();
 
 
-                    // Присвоить значение полям формы
+               
                     string groupId = nodeInfo[0];
                     var group = ReadGroups(Convert.ToInt64(groupId));
                     textBox1.Text = group.Name;
                     textBox2.Text = groupId;
                 }
-                // Если тип выделенного узла является свойством (Property)
+                
                 else if (nodeType.Equals("Property"))
                 {
-                    // Отобразить форму редактирования свойства
+                 
                     HideGroupForm();
                     ShowPropertyForm();
 
-                    // Извлечь данные из выделенного узла дерева
+                    
                     long propertyId = long.Parse(nodeInfo[0]);
                     var property = ReadTProperties(propertyId);
-                    // Обновить поля формы редактирования свойства
+                  
                     textBox3.Text = property.Name;
                     textBox4.Text = property.Value;
                     textBox5.Text = Convert.ToString(property.GroupId);
@@ -699,7 +695,7 @@ namespace TestWinApp
 
         private void удалитьToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Получить выделенный узел из древовидной структуры
+      
             TreeNode selectedNode = treeView1.SelectedNode;
 
             if (selectedNode != null)
@@ -707,10 +703,10 @@ namespace TestWinApp
                 
                 string[] nodeInfo = selectedNode.Name.Split('|');
 
-                // Проверить, что выделенный узел непустой
+             
                 if (selectedNode.Tag is TGroup)
                 {
-                    // Если тип выделенного узла является группой (Group)
+               
 
                     // Удаление записей из таблицы TPROPERTY, TRELATION, TGROUP
                     long groupId = Convert.ToInt64(nodeInfo[0]);
@@ -720,15 +716,15 @@ namespace TestWinApp
                     DeleteRelation(Convert.ToInt64(getParentInfo[0]), groupId);
                     DeletePropertyByGroup(groupId);
                 }
-                // Если тип выделенного узла является свойством (Property)
+         
                 else if (selectedNode.Tag is TProperty)
                 {
-                    // Удаление записи из таблицы TPROPERTY
+                
                     long propertyId = Convert.ToInt64(nodeInfo[0]);
                     DeleteProperty(propertyId);
                 }
 
-                // Обновить древовидную структуру
+              
 
                 RefreshTreeView();
             }
